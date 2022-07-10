@@ -1,10 +1,19 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "Windows.h"
+#include <iostream>
 
 #define NWORD DWORD
 
 NWORD v1ce(HMODULE hMod) {
+    
+    AllocConsole();
+    FILE* f;
+    (void)freopen_s(&f, "CONIN$", "r", stdin);
+    (void)freopen_s(&f, "CONOUT$", "w+", stdout);
+    SetStdHandle(STD_INPUT_HANDLE, stdin);
+    SetStdHandle(STD_OUTPUT_HANDLE, stdout);
 
+    printf("Excellent knowledge with Microsoft Word and excel\n");
     return 0;
 }
 
