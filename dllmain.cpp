@@ -7,6 +7,7 @@
 
 #define NWORD DWORD
 
+
 struct Vec2 {
     float x, y;
 };
@@ -15,11 +16,34 @@ struct Vec3 {
 };
 
 HINSTANCE DllHandle;
-
-typedef void (*tSendPos)(void* player);
 uintptr_t moduleBase = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
+
+// Function hook 1
+typedef void (*tSendPos)(void* player);
 tSendPos pSendPosTarget = (tSendPos)(moduleBase + (uintptr_t)0x369C50);
 tSendPos pSendPos = nullptr;
+
+// Function hook 2
+typedef void (*tWeaponManagerUpdate)(void* weaponmanager);
+tWeaponManagerUpdate pWeaponManagerUpdateTarget = (tWeaponManagerUpdate)(moduleBase + (uintptr_t)0x3C6EC0);
+tWeaponManagerUpdate pWeaponManagerUpdate = nullptr;
+
+// Function hook 3
+typedef void (*tFirearmsUpdate)(void* firearms);
+tFirearmsUpdate pFirearmsUpdateTarget = (tFirearmsUpdate)(moduleBase + (uintptr_t)0x3AB610);
+tFirearmsUpdate pFirearmsUpdate = nullptr;
+
+
+void hookedWeaponManagerUpdate(void* weaponmanager) {
+    
+    // int maxAmmo = *(int*)((uintptr_t)firearms + (uintptr_t)0x78);
+    // printf("max ammo: %d", maxAmmo);
+    // printf("A\n");
+    short uthrowcount = *(short*)((uintptr_t)weaponmanager + (uintptr_t)0x8A);
+    // printf("throws: %hd\n", uthrowcount);
+    *(short*)((uintptr_t)weaponmanager + (uintptr_t)0x8A) = 2;
+    return pWeaponManagerUpdate(weaponmanager);
+}
 
 void hookedSendPos(void* player) {
     // Only get localplayer
@@ -30,9 +54,15 @@ void hookedSendPos(void* player) {
         void* rigidbody = *(void**)((uintptr_t)player + (uintptr_t)0x70);
         if (rigidbody) {
             Vec3 position = ((Vec3(__cdecl*)(void*))((uintptr_t)moduleBase + (uintptr_t)0x1AB3EC0))(rigidbody);
-            printf("Position: %f,%f,%f\n", position.x, position.y, position.z);
+            // printf("Position: %f,%f,%f\n", position.x, position.y, position.z);
             position.y = 10;
-            ((void(__cdecl*)(void*, Vec3))((uintptr_t)moduleBase + (uintptr_t)0x1AB4140))(rigidbody, position);
+            // Set the position
+            // ((void(__cdecl*)(void*, Vec3))((uintptr_t)moduleBase + (uintptr_t)0x1AB4140))(rigidbody, position);
+
+            Vec3 velocity = ((Vec3(__cdecl*)(void*))((uintptr_t)moduleBase + (uintptr_t)0x1AB4000))(rigidbody);
+            velocity.y = 0;
+            // Set the velocity
+            // ((void(__cdecl*)(void*, Vec3))((uintptr_t)moduleBase + (uintptr_t)0x1AB4280))(rigidbody, velocity);
             
         }
 
@@ -60,12 +90,7 @@ void hookedSendPos(void* player) {
         void* playermovement = *(void**)((uintptr_t)player + (uintptr_t)0x18);
 
         // printf("playermovementptr: %p\n", playermovement);
-        Vec3 velocity = ((Vec3(__thiscall*)(void*))((uintptr_t)moduleBase + (uintptr_t)0x38FF70))(playermovement);
-        //printf("vel: (%f,%f,%f)\n", velocity.x,velocity.y,velocity.z);
-
-        void* righthandtarget = *(void**)((uintptr_t)player + (uintptr_t)0x138);
-        if (righthandtarget)printf("target: %p\n", righthandtarget);
-
+        
         if (GetAsyncKeyState(VK_NUMPAD5) & 1) {
         // if (true){
             Vec3 spawnPos = { 20,15,20 };
@@ -93,6 +118,25 @@ void hookedSendPos(void* player) {
     return pSendPos(player);
 }
 
+void hookedFirearmsUpdate(void* firearms) {
+    float firerate = *(float*)((uintptr_t)firearms + (uintptr_t)0x80);
+    printf("firerate: %f: \n", firerate);
+    printf("multiplier: %f: \n", *(float*)((uintptr_t)firearms + (uintptr_t)0x1BC)); // multiplier
+    printf("shootback: %f: \n", *(float*)((uintptr_t)firearms + (uintptr_t)0x11C)); //shootback
+    printf("force: %f: \n", *(float*)((uintptr_t)firearms + (uintptr_t)0xD4)); // force
+    printf("drag: %f: \n", *(float*)((uintptr_t)firearms + (uintptr_t)0xB0)); // drag
+    printf("bobspeed: %f: \n", *(float*)((uintptr_t)firearms + (uintptr_t)0x16C)); // bobspeed
+    printf("spreadAngle: %f: \n", *(float*)((uintptr_t)firearms + (uintptr_t)0x108)); // spreadangle
+
+    *(float*)((uintptr_t)firearms + (uintptr_t)0x80) = 50.f; 
+    
+    *(bool*)((uintptr_t)firearms + (uintptr_t)0x94) = true;
+
+    *(int*)((uintptr_t)firearms + (uintptr_t)0x7C) = 10;
+
+    return pFirearmsUpdate(firearms);
+}
+
 NWORD __stdcall EjectThread(LPVOID lpParameter) {
     Sleep(100);
     FreeLibraryAndExitThread(DllHandle, 0);
@@ -112,17 +156,38 @@ void shutdown(std::string reason) {
 void main() {
 
     MH_STATUS status = MH_Initialize();
-    
-    if (MH_CreateHook((void**)pSendPosTarget, &hookedSendPos, (void**)(&pSendPos)) != MH_OK) {
-        shutdown("PeekMessageA CreateHook failed!");
+    if (MH_CreateHook((void**)pWeaponManagerUpdateTarget, &hookedWeaponManagerUpdate, (void**)(&pWeaponManagerUpdate)) != MH_OK) {
+        shutdown("CreateHook failed!");
         return;
     }
-    printf("Works");
+    
+    if (MH_CreateHook((void**)pSendPosTarget, &hookedSendPos, (void**)(&pSendPos)) != MH_OK) {
+        shutdown("CreateHook failed!");
+        return;
+    }
+
+    if (MH_CreateHook((void**)pFirearmsUpdateTarget, &hookedFirearmsUpdate, (void**)(&pFirearmsUpdate)) != MH_OK) {
+        shutdown("CreateHook failed!");
+        return;
+    }
+
+    if (MH_EnableHook((void**)pWeaponManagerUpdateTarget) != MH_OK) {
+        shutdown("Hook failed!");
+        return;
+    }
+
     if (MH_EnableHook((void**)pSendPosTarget) != MH_OK) {
         shutdown("Hook failed!");
-        return ;
+        return; 
     }
+
+    if (MH_EnableHook((void**)pFirearmsUpdateTarget) != MH_OK) {
+        shutdown("Hook failed!");
+        return;
+    }
+
     while (true) {
+
         if (GetAsyncKeyState(VK_NUMPAD0) & 1) {
             break;
         }
