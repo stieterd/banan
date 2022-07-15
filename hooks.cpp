@@ -32,7 +32,7 @@ void hooks::funcs::hookedClientPlayerUpdate(game::structs::ClientPlayer* player)
 	if (!player->isLocal())
 	{
 		player->DisplayName();
-		player->OutlineDisplay(game::structs::Color{ 1, 0, 0, 1 });
+		player->OutlineDisplay(game::structs::Color{ 1.0, 0.0, 0.0, 1.0 });
 	}
 
 	return defs::ClientPlayerUpdateOriginal(player);
