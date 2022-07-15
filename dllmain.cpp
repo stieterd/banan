@@ -20,11 +20,6 @@ void cheatMain(HMODULE hMod) {
 
     std::cout << "[+]: Hooks placed!" << std::endl;
 
-    while (1)
-    {
-
-    }
-
     return;
 }
 

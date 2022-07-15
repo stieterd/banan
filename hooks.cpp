@@ -29,7 +29,11 @@ namespace hooks
 
 void hooks::funcs::hookedClientPlayerUpdate(game::structs::ClientPlayer* player)
 {
-	std::cout << player->getHealth() << std::endl;
+	if (!player->isLocal())
+	{
+		player->DisplayName();
+		player->OutlineDisplay(game::structs::Color{ 1, 0, 0, 1 });
+	}
 
 	return defs::ClientPlayerUpdateOriginal(player);
 }
