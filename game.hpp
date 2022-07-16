@@ -6,6 +6,11 @@ namespace game
 {
 	namespace structs
 	{
+		struct Vector3
+		{
+			float x, y, z;
+		};
+
 		struct Color
 		{
 			float r, g, b, a;
@@ -16,10 +21,21 @@ namespace game
 			Red, Blue
 		};
 
+		struct Transform
+		{
+			void LookAt(Vector3 worldPosition)
+			{
+				uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
+				(((void (*)(Transform*, Vector3)) (base + 0x1A7E3A0)))(this, worldPosition);
+			}
+		};
+
 		struct MultiplayerWeapon
 		{
 			float getReloadTime() { return *(float*)(this + 0x74); }
 			float getSpreadAngle() { return *(float*)(this + 0x48); }
+
+			Transform* getTipTransform() { return *(Transform**)(this + 0x40); }
 		};
 
 		struct ClientPlayer
@@ -48,6 +64,11 @@ namespace game
 			Team getTeam() { return *(Team*)(this + 0x118); }
 
 			MultiplayerWeapon* getCurrentWeapon() { return *(MultiplayerWeapon**)(this + 0xA8); }
+
+			Vector3 getDesiredPos() { return *(Vector3*)(this + 0x80); }
+
+			Transform* getHeadTransform() { return *(Transform**)(this + 0x130); }
+			Transform* getAimTargetTransform() { return *(Transform**)(this + 0x138); }
 		};
 	}
 
