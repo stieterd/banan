@@ -11,6 +11,17 @@ namespace game
 			float r, g, b, a;
 		};
 
+		enum Team
+		{
+			Red, Blue
+		};
+
+		struct MultiplayerWeapon
+		{
+			float getReloadTime() { return *(float*)(this + 0x74); }
+			float getSpreadAngle() { return *(float*)(this + 0x48); }
+		};
+
 		struct ClientPlayer
 		{
 			int getMaxHealth() { return *(int*)(this + 0x40); }
@@ -33,6 +44,12 @@ namespace game
 				uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 				(((void (*)(ClientPlayer*, Color)) (base + 0x35E710)))(this, color);
 			}
+
+			Team getTeam() { return *(Team*)(this + 0x118); }
+
+			MultiplayerWeapon* getCurrentWeapon() { return *(MultiplayerWeapon**)(this + 0xA8); }
 		};
 	}
+
+	extern structs::ClientPlayer* localPlayer;
 }

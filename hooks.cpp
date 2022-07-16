@@ -29,7 +29,11 @@ namespace hooks
 
 void hooks::funcs::hookedClientPlayerUpdate(game::structs::ClientPlayer* player)
 {
-	if (!player->isLocal())
+	if (player->isLocal())
+	{
+		game::localPlayer = player;
+	}
+	else
 	{
 		player->DisplayName();
 		player->OutlineDisplay(game::structs::Color{ 1.0, 0.0, 0.0, 1.0 });

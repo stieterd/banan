@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="hooks.cpp" />
   </ItemGroup>
   <ItemGroup>
