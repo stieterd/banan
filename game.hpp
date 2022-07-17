@@ -4,6 +4,8 @@
 
 namespace game
 {
+	inline uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
+
 	namespace structs
 	{
 		struct Vector3
@@ -25,7 +27,6 @@ namespace game
 		{
 			void LookAt(Vector3 worldPosition)
 			{
-				uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 				(((void (*)(Transform*, Vector3)) (base + 0x1A7E3A0)))(this, worldPosition);
 			}
 		};
@@ -45,19 +46,16 @@ namespace game
 
 			bool isLocal() 
 			{ 
-				uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 				return (((bool (*)(ClientPlayer*)) (base + 0x36BDB0)))(this); 
 			}
 
 			void DisplayName()
 			{
-				uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 				(((void (*)(ClientPlayer*)) (base + 0x35DA80)))(this);
 			}
 
 			void OutlineDisplay(Color color)
 			{
-				uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 				(((void (*)(ClientPlayer*, Color)) (base + 0x35E710)))(this, color);
 			}
 
@@ -72,5 +70,5 @@ namespace game
 		};
 	}
 
-	extern structs::ClientPlayer* localPlayer;
+	inline structs::ClientPlayer* localPlayer;
 }
