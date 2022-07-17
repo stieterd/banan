@@ -4,7 +4,7 @@
 
 namespace game
 {
-	inline uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
+	inline uintptr_t base = reinterpret_cast<uintptr_t>(GetModuleHandleW(L"GameAssembly.dll"));
 
 	namespace structs
 	{

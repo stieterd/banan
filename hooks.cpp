@@ -6,10 +6,8 @@ namespace hooks
 {
 	namespace defs
 	{
-		uintptr_t moduleBase = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
-
 		typedef void (*tClientPlayerUpdate)(void* player);
-		tClientPlayerUpdate ClientPlayerUpdate = (tClientPlayerUpdate)(moduleBase + (uintptr_t)0x369C50);
+		tClientPlayerUpdate ClientPlayerUpdate = (tClientPlayerUpdate)(game::base + (uintptr_t)0x369C50);
 		tClientPlayerUpdate ClientPlayerUpdateOriginal = nullptr;
 	}
 
