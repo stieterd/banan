@@ -18,11 +18,6 @@ namespace game
 			float r, g, b, a;
 		};
 
-		enum Team
-		{
-			Red, Blue
-		};
-
 		struct Transform
 		{
 			void LookAt(Vector3 worldPosition)
@@ -33,16 +28,46 @@ namespace game
 
 		struct MultiplayerWeapon
 		{
-			float getReloadTime() { return *(float*)(this + 0x74); }
-			float getSpreadAngle() { return *(float*)(this + 0x48); }
+			float getReloadTime() 
+			{ 
+				return *(float*)(this + 0x74); 
+			}
 
-			Transform* getTipTransform() { return *(Transform**)(this + 0x40); }
+			float getSpreadAngle() 
+			{ 
+				return *(float*)(this + 0x48); 
+			}
+
+			Transform* getTipTransform() 
+			{ 
+				return *(Transform**)(this + 0x40); 
+			}
+		};
+
+		struct Outline
+		{
+			void setOutlineWidth(float width)
+			{
+				(((void (*)(Outline*, float width))(base + 0x33E990)))(this, width);
+			}
+
+			float getOutlineWidth()
+			{
+				(((void (*)(Outline*))(base + 0x33E960)))(this);
+			}
 		};
 
 		struct ClientPlayer
 		{
-			int getMaxHealth() { return *(int*)(this + 0x40); }
-			int getHealth() { return *(int*)(this + 0x3C); }
+			int getMaxHealth()
+			{ 
+				return *(int*)(this + 0x40); 
+			}
+
+			int getHealth()
+			{
+				return *(int*)(this + 0x3C); 
+			}
 
 			bool isLocal() 
 			{ 
@@ -59,14 +84,35 @@ namespace game
 				(((void (*)(ClientPlayer*, Color)) (base + 0x35E710)))(this, color);
 			}
 
-			Team getTeam() { return *(Team*)(this + 0x118); }
+			int getTeam()
+			{ 
+				return *(int*)(this + 0x118); 
+			}
 
-			MultiplayerWeapon* getCurrentWeapon() { return *(MultiplayerWeapon**)(this + 0xA8); }
+			MultiplayerWeapon* getCurrentWeapon() 
+			{ 
+				return *(MultiplayerWeapon**)(this + 0xA8); 
+			}
 
-			Vector3 getDesiredPos() { return *(Vector3*)(this + 0x80); }
+			Vector3 getDesiredPos() 
+			{ 
+				return *(Vector3*)(this + 0x80); 
+			}
 
-			Transform* getHeadTransform() { return *(Transform**)(this + 0x130); }
-			Transform* getAimTargetTransform() { return *(Transform**)(this + 0x138); }
+			Transform* getHeadTransform() 
+			{ 
+				return *(Transform**)(this + 0x130); 
+			}
+
+			Transform* getAimTargetTransform() 
+			{ 
+				return *(Transform**)(this + 0x138); 
+			}
+
+			Outline* getOutline()
+			{
+				return *(Outline**)(this + 0x58);
+			}
 		};
 	}
 

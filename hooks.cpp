@@ -33,8 +33,19 @@ void hooks::funcs::hookedClientPlayerUpdate(game::structs::ClientPlayer* player)
 	}
 	else
 	{
+		if (!game::localPlayer)
+		{
+			return defs::ClientPlayerUpdateOriginal(player);
+		}
+
+		if (player->getTeam() == game::localPlayer->getTeam() /*&& mode == teamdeathmatch*/)
+		{
+
+		}
+
+		player->getOutline()->setOutlineWidth(2.0);
+		player->OutlineDisplay(game::structs::Color{ 1.0,0.0,0.0,1.0 });
 		player->DisplayName();
-		player->OutlineDisplay(game::structs::Color{ 1.0, 0.0, 0.0, 1.0 });
 	}
 
 	return defs::ClientPlayerUpdateOriginal(player);
